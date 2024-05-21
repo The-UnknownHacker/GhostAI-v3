@@ -1,5 +1,17 @@
 // @ts-nocheck
 
+
+export function getUIStateFromAIState(aiState: AIState): UIState {
+  return aiState.messages.map(message => ({
+    id: message.id!,
+    display: message.display ? (
+      <message.display.name {...message.display.props} />
+    ) : (
+      <BotMessage content={message.content} />
+    )
+  }));
+}
+
 /* eslint-disable jsx-a11y/alt-text */
 /* eslint-disable @next/next/no-img-element */
 import 'server-only'
@@ -359,7 +371,7 @@ export const AI = createAI<AIState, UIState>({
   }
 })
 
-function getUIStateFromAIState(aiState: AIState): UIState {
+export function getUIStateFromAIState(aiState: AIState): UIState {
   return aiState.messages.map(message => ({
     id: message.id!,
     display: message.display ? (
