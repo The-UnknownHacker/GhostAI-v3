@@ -38,81 +38,80 @@ async function describeImage(imageBase64: string) {
   const messageStream = createStreamableUI(null)
   const uiStream = createStreamableUI()
 
-  uiStream.update(
-    <BotCard>
-      <Video isLoading />
-    </BotCard>
-  )
-  ;(async () => {
+  // Update UI to show spinner
+  spinnerStream.update(<SpinnerMessage />);
+
+  (async () => {
     try {
-      let text = ''
+      let text = '';
 
       if (imageBase64 === '') {
-        await new Promise(resolve => setTimeout(resolve, 5000))
+        // Simulate processing delay for empty image
+        await new Promise(resolve => setTimeout(resolve, 5000));
 
         text = `
-      The books in this image are:
-
-      1. The Little Prince by Antoine de Saint-Exupéry
-      2. The Prophet by Kahlil Gibran
-      3. Man's Search for Meaning by Viktor Frankl
-      4. The Alchemist by Paulo Coelho
-      5. The Kite Runner by Khaled Hosseini
-      6. To Kill a Mockingbird by Harper Lee
-      7. The Catcher in the Rye by J.D. Salinger
-      8. The Great Gatsby by F. Scott Fitzgerald
-      9. 1984 by George Orwell
-      10. Animal Farm by George Orwell
-      `
+          The books in this image are:
+          1. The Little Prince by Antoine de Saint-Exupéry
+          2. The Prophet by Kahlil Gibran
+          3. Man's Search for Meaning by Viktor Frankl
+          4. The Alchemist by Paulo Coelho
+          5. The Kite Runner by Khaled Hosseini
+          6. To Kill a Mockingbird by Harper Lee
+          7. The Catcher in the Rye by J.D. Salinger
+          8. The Great Gatsby by F. Scott Fitzgerald
+          9. 1984 by George Orwell
+          10. Animal Farm by George Orwell
+        `;
       } else {
-        const imageData = imageBase64.split(',')[1]
+        const imageData = imageBase64.split(',')[1];
 
-        const model = genAI.getGenerativeModel({ model: 'gemini-pro-vision' })
-        const prompt = 'List the books in this image.'
+        const model = genAI.getGenerativeModel({ model: 'gemini-pro-vision' });
+        const prompt = 'List the books in this image.';
         const image = {
           inlineData: {
             data: imageData,
             mimeType: 'image/png'
           }
-        }
+        };
 
-        const result = await model.generateContent([prompt, image])
-        text = result.response.text()
-        console.log(text)
+        const result = await model.generateContent([prompt, image]);
+        text = result.response.text();
+        console.log(text);
       }
 
-      spinnerStream.done(null)
-      messageStream.done(null)
+      spinnerStream.done(null); // Hide spinner
+      messageStream.done(null);
 
-      uiStream.done(
+      // Update UI to show message
+      uiStream.update(
         <BotCard>
-          <Video />
+          <BotMessage content={text} />
         </BotCard>
-      )
+      );
 
       aiState.done({
         ...aiState.get(),
         interactions: [text]
-      })
+      });
     } catch (e) {
-      console.error(e)
+      console.error(e);
 
       const error = new Error(
         'The AI encountered an error, please try again later.'
-      )
-      uiStream.error(error)
-      spinnerStream.error(error)
-      messageStream.error(error)
-      aiState.done()
+      );
+      uiStream.error(error);
+      spinnerStream.error(error);
+      messageStream.error(error);
+      aiState.done();
     }
-  })()
+  })();
 
   return {
     id: nanoid(),
     attachments: uiStream.value,
     spinner: spinnerStream.value,
     display: messageStream.value
-  }
+  };
 }
 
 async function submitUserMessage(content: string) {
@@ -142,7 +141,7 @@ async function submitUserMessage(content: string) {
   const messageStream = createStreamableUI(null)
   const uiStream = createStreamableUI()
 
-  ;(async () => {
+  (async () => {
     try {
       const result = await experimental_streamText({
         model: google.generativeAI('models/gemini-1.0-pro-001'),
