@@ -1,63 +1,48 @@
-import { GeistSans } from 'geist/font/sans'
-import { GeistMono } from 'geist/font/mono'
-import { Analytics } from '@vercel/analytics/react'
-import '@/app/globals.css'
-import { cn } from '@/lib/utils'
-import { Providers } from '@/components/providers'
-import { Header } from '@/components/header'
-import { Toaster } from '@/components/ui/sonner'
-import { KasadaClient } from '@/lib/kasada/kasada-client'
+import type { Metadata, Viewport } from 'next'
+import Script from 'next/script'
+import ThemeProvider from '@/components/ThemeProvider'
+import StoreProvider from '@/components/StoreProvider'
+import I18Provider from '@/components/I18nProvider'
+import { isUndefined } from 'lodash-es'
 
-export const metadata = {
-  metadataBase: new URL(`https://${process.env.VERCEL_URL}`),
-  title: {
-    default: 'GhostAI',
-    template: `%s - GhostAI`
-  },
-  description:
-    'The best opensource AI platform',
+import 'katex/dist/katex.min.css'
+import 'highlight.js/styles/a11y-light.css'
+import './globals.css'
+
+const HEAD_SCRIPTS = process.env.HEAD_SCRIPTS as string
+const ENABLE_PROTECT = !isUndefined(process.env.ACCESS_PASSWORD)
+
+export const metadata: Metadata = {
+  title: 'GhostAI',
+  description: 'GhostAI',
+  keywords: ['Gemini', 'Gemini Pro', 'Gemini Chat', 'AI', 'voice', 'Free Chatgpt', 'Chatgpt'],
   icons: {
-    icon: '/favicon.ico',
-    shortcut: '/favicon-16x16.png',
-    apple: '/apple-touch-icon.png'
-  }
+    icon: {
+      type: 'image/svg+xml',
+      url: '/logo.svg',
+    },
+  },
 }
 
-export const viewport = {
-  themeColor: [
-    { media: '(prefers-color-scheme: light)', color: 'white' },
-    { media: '(prefers-color-scheme: dark)', color: 'black' }
-  ]
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1.0,
+  minimumScale: 1.0,
+  maximumScale: 1.0,
+  viewportFit: 'cover',
+  userScalable: false,
 }
 
-interface RootLayoutProps {
-  children: React.ReactNode
-}
-
-export default function RootLayout({ children }: RootLayoutProps) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body
-        className={cn(
-          'font-sans antialiased',
-          GeistSans.variable,
-          GeistMono.variable
-        )}
-      >
-        <KasadaClient />
-        <Toaster position="top-center" />
-        <Providers
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <div className="flex flex-col min-h-screen">
-            <Header />
-            <main className="flex flex-col flex-1">{children}</main>
-          </div>
-        </Providers>
-        <Analytics />
+      <head>{HEAD_SCRIPTS ? <Script id="headscript">{HEAD_SCRIPTS}</Script> : null}</head>
+      <body>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+          <StoreProvider isProtected={ENABLE_PROTECT}>
+            <I18Provider>{children}</I18Provider>
+          </StoreProvider>
+        </ThemeProvider>
       </body>
     </html>
   )
