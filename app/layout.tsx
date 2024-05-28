@@ -52,9 +52,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <SignedOut>
                   <div className="flex flex-col items-center justify-center h-screen text-center">
                     <h1 className="text-4xl mb-4">Welcome to GhostAI</h1>
-                    <SignInButton className="bg-primary text-primary-foreground px-6 py-3 rounded-lg hover:bg-primary/80">
-                      Sign in to continue
-                    </SignInButton>
+                    <div className="bg-primary text-primary-foreground px-6 py-3 rounded-lg hover:bg-primary/80">
+                      <SignInButton>Sign in to continue</SignInButton>
+                    </div>
                   </div>
                 </SignedOut>
                 <SignedIn>
