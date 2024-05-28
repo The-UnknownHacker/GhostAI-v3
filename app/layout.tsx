@@ -1,11 +1,3 @@
-import {
-  ClerkProvider,
-  SignInButton,
-  SignedIn,
-  SignedOut,
-  UserButton
-} from '@clerk/nextjs'
-import './globals.css'
 import type { Metadata, Viewport } from 'next'
 import Script from 'next/script'
 import ThemeProvider from '@/components/ThemeProvider'
@@ -15,6 +7,7 @@ import { isUndefined } from 'lodash-es'
 
 import 'katex/dist/katex.min.css'
 import 'highlight.js/styles/a11y-light.css'
+import './globals.css'
 
 const HEAD_SCRIPTS = process.env.HEAD_SCRIPTS as string
 const ENABLE_PROTECT = !isUndefined(process.env.ACCESS_PASSWORD)
@@ -42,30 +35,15 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <ClerkProvider>
-      <html lang="en" suppressHydrationWarning>
-        <head>{HEAD_SCRIPTS ? <Script id="headscript">{HEAD_SCRIPTS}</Script> : null}</head>
-        <body className="bg-background text-foreground">
-          <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-            <StoreProvider isProtected={ENABLE_PROTECT}>
-              <I18Provider>
-                <SignedOut>
-                  <div className="flex flex-col items-center justify-center h-screen text-center">
-                    <h1 className="text-4xl mb-4">Welcome to GhostAI</h1>
-                    <div className="bg-primary text-primary-foreground px-6 py-3 rounded-lg hover:bg-primary/80">
-                      <SignInButton>Sign in to continue</SignInButton>
-                    </div>
-                  </div>
-                </SignedOut>
-                <SignedIn>
-                  <UserButton />
-                  {children}
-                </SignedIn>
-              </I18Provider>
-            </StoreProvider>
-          </ThemeProvider>
-        </body>
-      </html>
-    </ClerkProvider>
+    <html lang="en" suppressHydrationWarning>
+      <head>{HEAD_SCRIPTS ? <Script id="headscript">{HEAD_SCRIPTS}</Script> : null}</head>
+      <body>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+          <StoreProvider isProtected={ENABLE_PROTECT}>
+            <I18Provider>{children}</I18Provider>
+          </StoreProvider>
+        </ThemeProvider>
+      </body>
+    </html>
   )
 }
